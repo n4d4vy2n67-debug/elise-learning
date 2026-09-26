@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#7257e8">
+<link rel="manifest" href="manifest.webmanifest">
+<title>Elise Learning</title>
+<style>
+:root{--p:#7257e8;--bg:#f6f7fb;--card:#fff;--ink:#202331;--muted:#717789;--ok:#15966a;--bad:#d94f4f}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink)}
+main{max-width:600px;margin:auto;padding:18px 16px 90px}.top{display:flex;justify-content:space-between;align-items:center}.brand{font-weight:900;font-size:21px}.pill{padding:8px 11px;background:#ece8ff;color:#5543bd;border-radius:999px;font-weight:800}
+.hero{background:linear-gradient(135deg,#7257e8,#a591ff);color:white;border-radius:25px;padding:22px;margin:18px 0;box-shadow:0 12px 28px #7257e82c}.hero h1{margin:0 0 8px}.chips{display:flex;gap:7px;flex-wrap:wrap;margin-top:15px}.chips span{background:#ffffff22;border-radius:11px;padding:7px 9px;font-size:13px}
+.card{background:white;border-radius:20px;padding:17px;margin:12px 0;box-shadow:0 5px 18px #1f24400b}.muted{font-size:13px;color:var(--muted)}
+button{border:0;border-radius:15px;padding:14px;font-weight:800;font-size:16px;cursor:pointer}.primary{width:100%;background:var(--p);color:#fff}.choice{display:block;width:100%;text-align:left;background:#f1f2f6;margin:8px 0;color:var(--ink)}.choice.good{background:#dff7ed}.choice.bad{background:#ffe3e3}
+.progress{height:9px;background:#e8e9ef;border-radius:20px;overflow:hidden;margin:10px 0}.progress i{display:block;height:100%;background:var(--p)}
+.screen{display:none}.screen.active{display:block}.feedback{padding:12px;border-radius:12px;margin:10px 0}.ok{background:#dff7ed}.no{background:#ffe8e8}.row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #eee}.center{text-align:center}.score{font-size:55px;font-weight:900}
+nav{position:fixed;bottom:0;left:0;right:0;background:#fffffff2;border-top:1px solid #eee;display:flex;justify-content:center}nav div{width:100%;max-width:600px;display:flex;justify-content:space-around}nav button{background:none;font-size:13px;color:#666}
+</style>
+</head>
+<body>
+<main>
+<section id="home" class="screen active">
+ <div class="top"><div class="brand">✨ Elise Learning</div><div class="pill" id="xp">⭐ 0 XP</div></div>
+ <div class="hero"><h1>Salut Elise 👋</h1><div>Un petit défi aujourd'hui ?</div><div class="chips"><span>⏱ 10–15 min</span><span>🎯 Objectif 80%</span><span>🔥 <b id="streak">0</b> jour(s)</span></div></div>
+ <h2>Mission conseillée</h2>
+ <div class="card"><div class="muted">🇬🇧 ANGLAIS · FONDATIONS</div><h2>AM / IS / ARE</h2><p>Une explication courte, de l'entraînement et un mini-test.</p><button class="primary" data-start="english">Commencer</button></div>
+ <div class="card"><div class="muted">➗ MATHS · FONDATIONS</div><h2>Les entiers relatifs</h2><p>Opposé, valeur absolue, comparaison et calcul.</p><button class="primary" data-start="math">Commencer</button></div>
+</section>
+
+<section id="lesson" class="screen">
+ <button id="back">← Accueil</button><h2 id="title"></h2><div class="progress"><i id="bar" style="width:10%"></i></div>
+ <div id="theory" class="card"></div>
+ <div id="quiz" class="card" hidden><div class="muted" id="phase"></div><h2 id="question"></h2><div id="answers"></div><div id="feedback"></div><button id="next" class="primary" hidden>Suivant</button></div>
+</section>
+
+<section id="result" class="screen">
+ <div class="center"><div style="font-size:52px" id="badge">🏆</div><h1>Mission terminée !</h1><div class="score" id="pct"></div><p id="message"></p></div>
+ <div class="card"><div class="row"><span>Théorie</span><b id="rTheory"></b></div><div class="row"><span>Entraînement</span><b id="rPractice"></b></div><div class="row"><span>Mini-test</span><b id="rTest"></b></div><div class="row"><span>Total</span><b id="rTotal"></b></div></div>
+ <button class="primary" id="finish">Retour à l'accueil</button>
+</section>
+
+<section id="parent" class="screen">
+ <div class="top"><div class="brand">📊 Espace parent</div><div class="pill">Elise</div></div>
+ <div class="card"><div class="row"><span>Séances</span><b id="sessions">0</b></div><div class="row"><span>Temps cumulé</span><b id="time">0 min</b></div><div class="row"><span>XP</span><b id="pxp">0</b></div></div>
+ <h2>Dernière séance</h2><div class="card" id="last">Aucune séance.</div>
+ <div class="card"><b>Rapports e-mail</b><p class="muted">Prêt à être relié à une fonction serveur (Resend, Gmail ou autre). Aucun mot de passe n'est stocké dans l'app.</p></div>
+</section>
+</main>
+<nav><div><button data-go="home">🏠<br>Accueil</button><button data-go="parent">📊<br>Parent</button></div></nav>
+<script src="app.js"></script>
+</body></html>
