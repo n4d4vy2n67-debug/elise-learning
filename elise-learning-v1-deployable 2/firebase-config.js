@@ -1,7 +1,7 @@
 // Firebase web configuration for Elise Learning.
 // Paste the public Web API key from Firebase Console in place of the placeholder below.
 window.ELISE_FIREBASE_CONFIG={
-  apiKey:"PASTE_FIREBASE_WEB_API_KEY_HERE",
+  apiKey:"AIzaSyA-fKhcqycTbz9l8TF4QN6v-lsuwxshtEE",
   authDomain:"elise-learning-dba67.firebaseapp.com",
   projectId:"elise-learning-dba67",
   storageBucket:"elise-learning-dba67.firebasestorage.app",
