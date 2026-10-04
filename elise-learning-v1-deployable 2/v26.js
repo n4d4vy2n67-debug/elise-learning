@@ -43,9 +43,25 @@
  function pick(pool,n,key){let old=[];try{old=JSON.parse(localStorage.getItem(key)||"[]");if(!Array.isArray(old))old=[]}catch(e){old=[]};let x=shuffle(pool.filter(q=>!old.includes(q.t)));if(x.length<n)x=x.concat(shuffle(pool.filter(q=>!x.includes(q))));let out=x.slice(0,n);localStorage.setItem(key,JSON.stringify(out.map(q=>q.t).concat(old).slice(0,20)));return out}
  function voice(){let vs=speechSynthesis.getVoices().filter(v=>/^en/i.test(v.lang)),f=/samantha|victoria|karen|moira|serena|ava|susan|female/i;return vs.find(v=>/en-GB/i.test(v.lang)&&f.test(v.name))||vs.find(v=>f.test(v.name))||vs.find(v=>/en-GB/i.test(v.lang))||vs[0]}
  function speak(s){speechSynthesis.cancel();let u=new SpeechSynthesisUtterance(s);u.lang="en-GB";u.rate=.70;u.pitch=1.08;let v=voice();if(v)u.voice=v;speechSynthesis.speak(u)}
- function prepareEnglish(){lessons.english.title="🇬🇧 TO BE · présent affirmatif";lessons.english.theory='<div class="muted">OBJECTIF DU JOUR</div><h2>Conjuguer TO BE au présent affirmatif</h2><p><b>I am</b> · <b>he/she/it is</b> · <b>you/we/they are</b>.</p><p><b>Méthode :</b> repère le sujet → remplace-le par un pronom → choisis <b>am, is ou are</b>.</p><p>Exemples : <i>I am ready. She is at school. They are happy.</i></p><p class="muted">Les exercices portent uniquement sur cette théorie. La négation, les questions et la traduction seront proposées dans leurs propres leçons.</p><button id="listen">🔊 Écouter lentement</button><br><br><button id="practice" class="primary">Commencer l\'entraînement →</button>';lessons.english.q=[...pick(practice,10,"v26ep"),...pick(test,5,"v26et")]}
- const englishButton=document.querySelector('[data-start="english"]');
- if(englishButton)englishButton.onclick=function(){try{prepareEnglish();begin("english");const listen=document.getElementById("listen");if(listen)listen.onclick=()=>speak("I am ready. She is at school. They are happy. We are in the same class.")}catch(e){console.error("V2.6 English start error",e);alert("Le cours d’anglais n’a pas pu démarrer. Recharge la page et réessaie.")}};
+ function prepareEnglish(){
+   lessons.english.title="🇬🇧 TO BE · présent affirmatif";
+   lessons.english.theory='<div class="muted">OBJECTIF DU JOUR</div><h2>Conjuguer TO BE au présent affirmatif</h2><p><b>I am</b> · <b>he/she/it is</b> · <b>you/we/they are</b>.</p><p><b>Méthode :</b> repère le sujet → remplace-le par un pronom → choisis <b>am, is ou are</b>.</p><p>Exemples : <i>I am ready. She is at school. They are happy.</i></p><p class="muted">Les exercices portent uniquement sur cette théorie. La négation, les questions et la traduction seront proposées dans leurs propres leçons.</p><button id="listen">🔊 Écouter lentement</button><br><br><button id="practice" class="primary">Commencer l\\'entraînement →</button>';
+   lessons.english.q=[...pick(practice,10,"v26ep"),...pick(test,5,"v26et")];
+ }
+ // Preserve the existing math path. For English, let the legacy V2.4 wrapper run first,
+ // then replace its mixed question set with the V2.6 pedagogically aligned session
+ // before the original screen renderer uses it.
+ const legacyBegin=begin;
+ begin=function(k){
+   if(k!=="english"){legacyBegin(k);return}
+   // V2.4 ultimately calls the original begin synchronously. Temporarily replace
+   // the lesson after its generator but before rendering by bypassing its mixed pool.
+   prepareEnglish();
+   lesson=lessons.english;i=pc=tc=0;answersLog=[];start=theoryStart=Date.now();
+   $("title").textContent=lesson.title;$("theory").innerHTML=lesson.theory;$("theory").hidden=false;$("quiz").hidden=true;
+   show("lesson");$("practice").onclick=startQuiz;
+   const listen=document.getElementById("listen");if(listen)listen.onclick=()=>speak("I am ready. She is at school. They are happy. We are in the same class.");
+ };
  let coach=document.getElementById("aiCoach"),quiz=document.getElementById("quiz");if(coach&&quiz)quiz.parentNode.insertBefore(coach,quiz.nextSibling);
  const oldDone=done;done=function(){oldDone();if(currentRec){currentRec.version=V;save()}};
  document.title="Elise Learning · "+V;document.querySelectorAll("footer").forEach(x=>x.textContent="Elise Learning · "+V);document.querySelectorAll(".pill").forEach(x=>{if(/^V2\./.test(x.textContent.trim()))x.textContent=V});
