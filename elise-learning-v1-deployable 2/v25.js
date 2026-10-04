@@ -1,18 +1,24 @@
 // Elise Learning V2.5 · regularity XP + AI coach preparation
 (function(){
   const VERSION25='V2.5';
+  const DAILY_XP_CAP=400;
   const localDay=()=>{const d=new Date(),y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');return y+'-'+m+'-'+day};
-  function sessionsToday(subject){const day=localDay();return (S.sessions||[]).filter(x=>x.subject===subject&&String(x.dateISO||'').slice(0,10)===day).length}
+  function sessionDay(x){const d=new Date(x.dateISO||0);if(!isFinite(d))return '';return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+  function sessionsToday(subject){const day=localDay();return (S.sessions||[]).filter(x=>x.subject===subject&&sessionDay(x)===day).length}
+  function xpToday(){const day=localDay();return (S.sessions||[]).filter(x=>sessionDay(x)===day).reduce((sum,x)=>sum+Number(x.xpEarned||0),0)}
   const beforeDone=done;
   done=function(){
     const subject=lesson&&lesson.key;
     const previous=sessionsToday(subject);
     const xpBefore=Number(S.xp||0);
+    const earnedBeforeToday=xpToday();
     beforeDone();
     if(!currentRec)return;
     const raw=Number(currentRec.xpEarned||0);
     const factor=previous===0?1:previous===1?.5:0;
-    const awarded=Math.round(raw*factor);
+    const subjectAward=Math.round(raw*factor);
+    const remaining=Math.max(0,DAILY_XP_CAP-earnedBeforeToday);
+    const awarded=Math.min(subjectAward,remaining);
     const correction=raw-awarded;
     if(correction>0)S.xp=Math.max(0,Number(S.xp||0)-correction);
     currentRec.version=VERSION25;
@@ -25,7 +31,8 @@
     if(earned){
       earned.textContent='+ '+awarded+' XP';
       if(factor===.5)earned.textContent+=' · 2e séance : 50 %';
-      if(factor===0)earned.textContent+=' · entraînement libre : plafond atteint';
+      if(factor===0)earned.textContent+=' · entraînement libre : plafond matière atteint';
+      else if(awarded<subjectAward)earned.textContent+=' · plafond quotidien de '+DAILY_XP_CAP+' XP atteint';
     }
   };
 
@@ -63,7 +70,7 @@
   const rules=document.querySelector('.rulesBox');
   if(rules){
     const p=document.createElement('p');
-    p.innerHTML='<b>XP par matière et par jour</b><br>1re séance : 100 % des XP · 2e séance : 50 % · à partir de la 3e : 0 XP. Tu peux toujours continuer à t’entraîner.';
+    p.innerHTML='<b>XP par matière et par jour</b><br>1re séance : 100 % des XP · 2e séance : 50 % · à partir de la 3e : 0 XP. Maximum '+DAILY_XP_CAP+' XP au total par jour. Tu peux toujours continuer à t’entraîner.';
     const button=rules.querySelector('button'); rules.insertBefore(p,button);
   }
   const style=document.createElement('style');
