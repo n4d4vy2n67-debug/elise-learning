@@ -1,10 +1,12 @@
 name: Elise Learning QA
 on:
   push:
+    branches: [main, 'feature/**', 'architecture/**']
+  pull_request:
     branches: [main]
   workflow_dispatch:
 jobs:
-  qa:
+  curriculum:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
