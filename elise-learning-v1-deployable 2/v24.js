@@ -59,9 +59,7 @@
   };
   const previousDone=done;
   done=function(){previousDone();if(currentRec){currentRec.version='V2.4';save();}};
-  document.title='Elise Learning · V2.4';
-  document.querySelectorAll('footer').forEach(x=>x.textContent='Elise Learning · V2.4');
-  document.querySelectorAll('.pill').forEach(x=>{if(/^V2\./.test(x.textContent.trim()))x.textContent='V2.4'});
+  // Version display is owned by the latest version layer (V2.6).
   document.querySelectorAll('[data-start="english"]').forEach(b=>{const card=b.closest('.card');if(card){card.querySelector('.muted').textContent='🇬🇧 ANGLAIS · NIVEAU ADAPTÉ';card.querySelector('h2').textContent='Anglais · mission du jour';card.querySelector('p').textContent='10 exercices variés + 5 questions de test. Les formats changent chaque jour.'}});
   document.querySelectorAll('[data-start="math"]').forEach(b=>{const card=b.closest('.card');if(card){card.querySelector('h2').textContent='Maths · mission du jour';card.querySelector('p').textContent='10 exercices variés + 5 questions de test. Plusieurs types de problèmes à chaque séance.'}});
 })();
