@@ -21,7 +21,11 @@
  {t:"Complete: My brother and I ___ hungry.",type:"text",accept:["are"],e:"My brother and I = we → ARE."},
  {t:"Complete: This exercise ___ easy.",type:"text",accept:["is"],e:"This exercise = it → IS."},
  {t:"Complete: Your shoes ___ new.",type:"text",accept:["are"],e:"Your shoes = they → ARE."},
- {t:"Correct the verb: They is tired.",type:"text",accept:["they are tired","they are tired."],e:"They → ARE."},\n {t:"Put in order: is / She / ready",type:"text",accept:["she is ready","she is ready."],e:"Sujet + TO BE + complément : She is ready."},\n {t:"Put in order: are / We / friends",type:"text",accept:["we are friends","we are friends."],e:"We → ARE : We are friends."},\n {t:"Which pronoun replaces ‘Emma’?",a:["I","she","they"],c:1,e:"Emma est une fille : on la remplace par SHE."},\n {t:"Which pronoun replaces ‘Tom and Max’?",a:["he","we","they"],c:2,e:"Tom and Max = plusieurs personnes : THEY."},
+ {t:"Correct the verb: They is tired.",type:"text",accept:["they are tired","they are tired."],e:"They → ARE."},
+ {t:"Put in order: is / She / ready",type:"text",accept:["she is ready","she is ready."],e:"Sujet + TO BE + complément : She is ready."},
+ {t:"Put in order: are / We / friends",type:"text",accept:["we are friends","we are friends."],e:"We → ARE : We are friends."},
+ {t:"Which pronoun replaces ‘Emma’?",a:["I","she","they"],c:1,e:"Emma est une fille : on la remplace par SHE."},
+ {t:"Which pronoun replaces ‘Tom and Max’?",a:["he","we","they"],c:2,e:"Tom and Max = plusieurs personnes : THEY."},
  {t:"Correct the verb: We is ready.",type:"text",accept:["we are ready","we are ready."],e:"We → ARE."},
  {t:"Correct the verb: I is happy.",type:"text",accept:["i am happy","i am happy."],e:"I → AM."},
  {t:"Choose the correct sentence.",a:["She am happy.","She is happy.","She are happy."],c:1,e:"She → IS."},
@@ -48,7 +52,7 @@
  function speak(s){speechSynthesis.cancel();let u=new SpeechSynthesisUtterance(s);u.lang="en-GB";u.rate=.48;u.pitch=1.12;let v=voice();if(v)u.voice=v;speechSynthesis.speak(u)}
  function prepareEnglish(){
    lessons.english.title="🇬🇧 TO BE · présent affirmatif";
-   lessons.english.theory=theme.theory;
+   lessons.english.theory=lessonThemes.beAffirmative.theory;
    lessons.english.q=[...pick(practice,10,"v26ep"),...pick(test,5,"v26et")];
  }
  // Preserve the existing math path. For English, let the legacy V2.4 wrapper run first,
