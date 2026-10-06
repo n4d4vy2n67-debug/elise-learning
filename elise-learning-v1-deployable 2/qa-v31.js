@@ -45,9 +45,26 @@ window.EliseQA=(()=>{
   });
   return errors
  }
+ function fullCatalogWalk(){
+  const errors=[],report={};
+  ["english","math"].forEach(subject=>{
+   const cat=subject==="english"?window.ELISE_CATALOG_EN:window.ELISE_CATALOG_MATH,visited=[];
+   for(let i=0;i<cat.length;i++){
+    const before=window.EliseEngine.build(subject,i),retry=window.EliseEngine.build(subject,i),next=window.EliseEngine.build(subject,i+1);
+    visited.push(before.topicId);
+    if(i<cat.length-1&&next.topicId===before.topicId)errors.push(subject+": 80%+ n'avance pas après "+before.topicId);
+    if(retry.topicId!==before.topicId)errors.push(subject+": <80% quitte "+before.topicId);
+    if(!retry.q.some((q,j)=>sig(q)!==sig(before.q[j])))errors.push(subject+": <80% ne renouvelle pas "+before.topicId);
+   }
+   const missing=cat.filter(x=>!visited.includes(x.id)).map(x=>x.id);
+   if(missing.length)errors.push(subject+": chapitres non parcourus: "+missing.join(", "));
+   report[subject]={expected:cat.length,visited:visited.length,chapters:visited};
+  });
+  return{errors,report}
+ }
  function run(){
-  const errors=[...checkSubject("english"),...checkSubject("math"),...progression(),...testIsolation()];
-  const result={ok:errors.length===0,errors,checkedAt:new Date().toISOString(),rule:"score >=80% => chapitre suivant ; score <80% => même chapitre avec nouveaux exercices"};
+  const walk=fullCatalogWalk(),errors=[...checkSubject("english"),...checkSubject("math"),...progression(),...testIsolation(),...walk.errors];
+  const result={ok:errors.length===0,errors,catalogWalk:walk.report,checkedAt:new Date().toISOString(),rule:"score >=80% => chapitre suivant ; score <80% => même chapitre avec nouveaux exercices"};
   console[result.ok?"info":"error"]("Elise QA V3.1",result);
   window.__ELISE_QA_RESULT=result;
   return result
