@@ -1,4 +1,4 @@
-const C="elise-v2-6-20261004";
+const C="elise-v2-6-20261006-fix1";
 const ASSETS=["./","index.html","app.js","v23.js","v24.js","v25.js","v26.js","manifest.webmanifest"];
 self.addEventListener("install",e=>{
   self.skipWaiting();
