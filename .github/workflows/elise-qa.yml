@@ -15,3 +15,19 @@ jobs:
           node-version: '20'
       - name: Run curriculum QA
         run: node tests/qa-ci.js
+
+  production-smoke:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: curriculum
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Wait for Netlify
+        run: sleep 60
+      - name: Check production
+        env:
+          SITE_URL: https://sparkling-alpaca-b0dd55.netlify.app
+        run: node tests/smoke-live.js
