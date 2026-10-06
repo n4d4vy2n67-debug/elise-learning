@@ -15,6 +15,8 @@ jobs:
           node-version: '20'
       - name: Run curriculum QA
         run: node tests/qa-ci.js
+      - name: Run pedagogical orchestrator QA
+        run: node tests/orchestrator-ci.js
 
   production-smoke:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
