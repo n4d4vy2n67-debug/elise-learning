@@ -62,9 +62,36 @@ window.EliseQA=(()=>{
   });
   return{errors,report}
  }
+ function strictJourney(){
+  const errors=[],report={};
+  ["english","math"].forEach(subject=>{
+   const cat=subject==="english"?window.ELISE_CATALOG_EN:window.ELISE_CATALOG_MATH,visited=[],steps=[];
+   for(let i=0;i<cat.length;i++){
+    const item=cat[i],first=window.EliseEngine.build(subject,i);
+    if(first.topicId!==item.id)errors.push(subject+"/"+item.id+": chapitre inattendu");
+    if(first.q.length!==15)errors.push(subject+"/"+item.id+": pas 15 questions");
+    const retry=window.EliseEngine.build(subject,i);
+    const retryChanged=retry.q.some((q,j)=>sig(q)!==sig(first.q[j]));
+    if(retry.topicId!==item.id)errors.push(subject+"/"+item.id+": 60% ne reste pas sur la notion");
+    if(!retryChanged)errors.push(subject+"/"+item.id+": 60% ne produit pas une nouvelle série");
+    let nextId=null;
+    if(i<cat.length-1){
+     const after80=window.EliseEngine.build(subject,i+1);
+     nextId=after80.topicId;
+     if(nextId===item.id||nextId!==cat[i+1].id)errors.push(subject+"/"+item.id+": 80% ne mène pas à "+cat[i+1].id);
+    }
+    visited.push(item.id);steps.push({chapter:item.id,fail60Stays:retry.topicId===item.id,fail60NewQuestions:retryChanged,pass80MovesTo:nextId});
+   }
+   const unique=[...new Set(visited)],missing=cat.filter(x=>!unique.includes(x.id)).map(x=>x.id);
+   if(unique.length!==cat.length)errors.push(subject+": parcours incomplet "+unique.length+"/"+cat.length);
+   if(missing.length)errors.push(subject+": manquants "+missing.join(", "));
+   report[subject]={expected:cat.length,visited:unique.length,chapters:unique,steps};
+  });
+  return{errors,report}
+ }
  function run(){
-  const walk=fullCatalogWalk(),errors=[...checkSubject("english"),...checkSubject("math"),...progression(),...testIsolation(),...walk.errors];
-  const result={ok:errors.length===0,errors,catalogWalk:walk.report,checkedAt:new Date().toISOString(),rule:"score >=80% => chapitre suivant ; score <80% => même chapitre avec nouveaux exercices"};
+  const walk=fullCatalogWalk(),strict=strictJourney(),errors=[...checkSubject("english"),...checkSubject("math"),...progression(),...testIsolation(),...walk.errors,...strict.errors];
+  const result={ok:errors.length===0,errors,catalogWalk:walk.report,strictJourney:strict.report,checkedAt:new Date().toISOString(),rule:"score >=80% => chapitre suivant ; score <80% => même chapitre avec nouveaux exercices"};
   console[result.ok?"info":"error"]("Elise QA V3.1",result);
   window.__ELISE_QA_RESULT=result;
   return result
