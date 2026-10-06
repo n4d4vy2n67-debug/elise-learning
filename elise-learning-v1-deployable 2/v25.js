@@ -76,7 +76,5 @@
   const style=document.createElement('style');
   style.textContent='.coachBox{background:#fff;border:2px solid #ded7ff;border-radius:20px;padding:14px;margin:12px 0}.coachBtn{width:100%;background:#ece8ff;color:#5543bd}.coachBox textarea{width:100%;margin-top:10px}';
   document.head.appendChild(style);
-  document.title='Elise Learning · '+VERSION25;
-  document.querySelectorAll('footer').forEach(x=>x.textContent='Elise Learning · '+VERSION25);
-  document.querySelectorAll('.pill').forEach(x=>{if(/^V2\./.test(x.textContent.trim()))x.textContent=VERSION25});
+  // Version display is owned by the latest version layer (V2.6).
 })();
