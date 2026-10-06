@@ -1,0 +1,22 @@
+window.ELISE_CATALOG_MATH=[
+["integers","Nombres entiers relatifs","comparaison et opérations"],
+["priorities","Priorités opératoires","parenthèses, puissances, multiplication, division, addition, soustraction"],
+["powers","Puissances","carrés, cubes et règles de base"],
+["fractions","Fractions","simplifier, comparer et calculer"],
+["decimals","Nombres décimaux","opérations et comparaison"],
+["divisibility","Divisibilité","multiples, diviseurs et critères"],
+["percent","Pourcentages","calculer une proportion et une variation"],
+["proportion","Proportionnalité","tableaux et règle de trois"],
+["literal","Calcul littéral","expressions avec lettres"],
+["distributivity","Distributivité","développer et réduire"],
+["equations","Équations simples","trouver une inconnue"],
+["coordinates","Repérage","coordonnées dans le plan"],
+["angles","Angles","identifier et calculer"],
+["triangles","Triangles et quadrilatères","propriétés et classification"],
+["perimeterArea","Périmètres et aires","figures usuelles"],
+["solids","Solides et volumes","volumes et conversions"],
+["symmetry","Transformations","symétries et transformations simples"],
+["statistics","Statistiques","tableaux, graphiques et indicateurs simples"],
+["wordProblems","Problèmes","raisonnement en plusieurs étapes"],
+["logic","Logique","raisonnement et stratégies"]
+].map((x,i)=>({id:x[0],order:i+1,title:x[1],scope:x[2]}));
