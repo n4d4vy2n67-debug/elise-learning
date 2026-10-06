@@ -1,0 +1,23 @@
+window.ELISE_CATALOG_EN=[
+["be","TO BE","am / is / are, affirmatif, négatif et questions"],
+["have","HAVE GOT / HAS GOT","possession, affirmatif, négatif et questions"],
+["present","Present simple","habitudes, 3e personne, affirmatif"],
+["doDoes","DO / DOES","questions et négations au present simple"],
+["frequency","Adverbes de fréquence","always, usually, often, sometimes, never"],
+["pronouns","Pronoms personnels","sujets et compléments"],
+["possessives","Possessifs","my, your, his, her, our, their, mine, yours"],
+["articles","Articles","a, an, the et article zéro"],
+["plurals","Pluriels","formes régulières et irrégulières"],
+["there","THERE IS / THERE ARE","décrire ce qui se trouve quelque part"],
+["can","CAN / CAN'T","capacité et permission"],
+["imperative","Impératif","consignes et instructions"],
+["questionWords","Mots interrogatifs","who, what, where, when, why, how"],
+["prepositions","Prépositions","lieu et temps"],
+["presentContinuous","Present continuous","be + verbe-ing"],
+["comparison","Comparatifs et superlatifs","comparaison de personnes et objets"],
+["someAny","SOME / ANY","quantités et noms dénombrables/non dénombrables"],
+["vocabDaily","Vocabulaire courant","école, famille, maison, loisirs, quotidien"],
+["sentenceOrder","Construction de phrases","ordre des mots"],
+["reading","Compréhension","phrases et textes courts"],
+["translation","Traduction","français vers anglais et anglais vers français"]
+].map((x,i)=>({id:x[0],order:i+1,title:x[1],scope:x[2]}));
