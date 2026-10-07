@@ -17,6 +17,17 @@ jobs:
         run: node tests/qa-ci.js
       - name: Run pedagogical orchestrator QA
         run: node tests/orchestrator-ci.js
+      - name: Install Playwright
+        run: |
+          npm init -y
+          npm install --save-dev @playwright/test
+          npx playwright install --with-deps chromium
+      - name: Run browser E2E
+        run: |
+          python3 -m http.server 4173 --directory "elise-learning-v1-deployable 2" &
+          npx playwright test tests/e2e.spec.js --browser=chromium
+        env:
+          PLAYWRIGHT_BASE_URL: http://127.0.0.1:4173
 
   production-smoke:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
