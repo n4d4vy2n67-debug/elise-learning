@@ -1,0 +1,1 @@
+window.EliseLearningHelp={show:function(lesson,q){var rule=q.e||"";var method=lesson.key==="math"?"Identifie la règle ou l’opération utile, puis avance une étape à la fois.":"Repère le sujet et la structure, puis applique la règle du chapitre.";return "<b>Rappel de théorie</b><br>"+method+"<br><br><b>Application à cet exercice</b><br>"+rule;}};

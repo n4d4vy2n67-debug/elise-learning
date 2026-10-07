@@ -17,6 +17,8 @@ jobs:
         run: node tests/qa-ci.js
       - name: Run pedagogical orchestrator QA
         run: node tests/orchestrator-ci.js
+      - name: Run V3.2.2 acceptance QA
+        run: node tests/v322-ci.js
       - name: Install Playwright
         run: |
           npm init -y
