@@ -1,10 +1,12 @@
 name: Elise Learning QA
 on:
   push:
+    branches: [main, 'feature/**', 'architecture/**']
+  pull_request:
     branches: [main]
   workflow_dispatch:
 jobs:
-  qa:
+  curriculum:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -13,3 +15,32 @@ jobs:
           node-version: '20'
       - name: Run curriculum QA
         run: node tests/qa-ci.js
+      - name: Run pedagogical orchestrator QA
+        run: node tests/orchestrator-ci.js
+      - name: Install Playwright
+        run: |
+          npm init -y
+          npm install --save-dev @playwright/test
+          npx playwright install --with-deps chromium
+      - name: Run browser E2E
+        run: |
+          python3 -m http.server 4173 --directory "elise-learning-v1-deployable 2" &
+          npx playwright test tests/e2e.spec.js --browser=chromium
+        env:
+          PLAYWRIGHT_BASE_URL: http://127.0.0.1:4173
+
+  production-smoke:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: curriculum
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Wait for Netlify
+        run: sleep 60
+      - name: Check production
+        env:
+          SITE_URL: https://sparkling-alpaca-b0dd55.netlify.app
+        run: node tests/smoke-live.js
