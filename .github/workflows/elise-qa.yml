@@ -21,6 +21,8 @@ jobs:
         run: node tests/v322-ci.js
       - name: QA advanced math priorities
         run: node tests/math-priorities-ci.js
+      - name: QA all math chapters
+        run: node tests/math-all-chapters-ci.js
       - name: Install Playwright
         run: |
           npm init -y
