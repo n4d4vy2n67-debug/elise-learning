@@ -1,5 +1,5 @@
 window.ELISE_EXTRA=window.ELISE_EXTRA||{};window.ELISE_EXTRA.math=window.ELISE_EXTRA.math||{};
-(function(){const M=window.ELISE_EXTRA.math,R=(a,b)=>a+Math.floor(Math.random()*(b-a+1)),P=a=>a[R(0,a.length-1)],T=(q,a,e)=>({t:q,type:"text",accept:[String(a),String(a).replace(".",",")],e}),C=(q,c,w,e)=>{let a=[String(c),...w.map(String)].filter((x,i,s)=>s.indexOf(x)===i);return{t:q,a,c:0,e}};
+(function(){const M=window.ELISE_EXTRA.math,R=(a,b)=>a+Math.floor(Math.random()*(b-a+1)),P=a=>a[R(0,a.length-1)],T=(q,a,e)=>({t:q,type:"text",accept:[String(a),String(a).replace(".",",")],e}),C=(q,c,w,e)=>{let a=[String(c),...w.map(String)].filter((x,i,s)=>s.indexOf(x)===i);a=a.sort(()=>Math.random()-.5);return{t:q,a,c:a.indexOf(String(c)),e}};
 const banks={
 integers:[
 ()=>{let a=R(-12,12),b=R(-12,12);return T(a+" − ("+b+") =",a-b,"Soustraire revient à ajouter l'opposé.")},
@@ -13,7 +13,7 @@ powers:[
 ()=>{let a=R(2,7);return T(a+"² + "+a+" =",a*a+a,"Calcule d'abord la puissance.")}],
 fractions:[
 ()=>{let a=R(1,6),b=R(2,9);return T(a+"/"+b+" + "+a+"/"+b+" = (numérateur, dénominateur)",(2*a)+","+b,"On additionne les numérateurs à dénominateur identique.")},
-()=>{let a=R(2,8),b=R(2,9);return T((a*b)+"/"+(b*2)+" simplifiée = (numérateur, dénominateur)",a+","+2,"Divise les deux termes par le même facteur.")},
+()=>{let a=P([1,3,5,7]),b=R(2,9);return T((a*b)+"/"+(b*2)+" simplifiée = (numérateur, dénominateur)",a+","+2,"Divise les deux termes par le même facteur.")},
 ()=>{let a=R(1,6),b=R(a+1,10);return C("Quelle fraction est la plus grande ?",b+"/10",[a+"/10",(a-1)+"/10"],"À dénominateur égal, compare les numérateurs.")},
 ()=>{let a=R(1,6),b=R(2,8);return T(a+"/"+b+" × 2 = (numérateur, dénominateur)",(2*a)+","+b,"Multiplie le numérateur par deux.")}],
 decimals:[
@@ -27,8 +27,8 @@ divisibility:[
 ()=>{let a=R(20,200);return C(a+" est divisible par 5 ?",a%5===0?"oui":"non",[a%5===0?"non":"oui"],"Terminaison 0 ou 5.")},
 ()=>{let a=R(2,12),b=R(2,8);return T("Combien vaut "+a+" × "+b+" ?",a*b,"Un multiple est un produit.")}],
 percent:[
-()=>{let a=R(2,8)*10;return T("Prix "+a+" €, remise de 10 %. Prix final =",a*0.9,"Soustrais la remise au prix initial.")},
-()=>{let a=R(2,8)*10;return T("Prix "+a+" €, augmentation de 20 %. Prix final =",a*1.2,"Ajoute 20 % au prix.")},
+()=>{let a=R(2,8)*10;return T("Prix "+a+" €, remise de 10 %. Prix final =",Math.round(a*90)/100,"Soustrais la remise au prix initial.")},
+()=>{let a=R(2,8)*10;return T("Prix "+a+" €, augmentation de 20 %. Prix final =",Math.round(a*120)/100,"Ajoute 20 % au prix.")},
 ()=>{let a=R(2,8)*10;return T("La moitié de "+a+" =",a/2,"50 % correspond à la moitié.")},
 ()=>{let a=R(2,8)*10;return T("25 % de "+a+" =",a/4,"25 % correspond au quart.")}],
 proportion:[
@@ -82,7 +82,7 @@ symmetry:[
 ()=>C("Une translation conserve-t-elle les angles ?","oui",["non"],"Les angles sont conservés."),
 ()=>C("Une symétrie centrale est-elle un demi-tour ?","oui",["non"],"C'est une rotation de 180°.")],
 statistics:[
-()=>{let a=R(2,8),b=R(2,8),c=R(2,8);return T("Moyenne de "+a+", "+b+", "+c+" =",Math.round((a+b+c)/3*100)/100,"Somme divisée par trois.")},
+()=>{let a=R(2,8),b=R(2,8),c=3*R(2,8)-a-b;return T("Moyenne de "+a+", "+b+", "+c+" =",(a+b+c)/3,"Somme divisée par trois.")},
 ()=>{let a=R(2,8),b=R(2,8);return T("Médiane de "+a+", "+(a+2)+" et "+(a+5)+" =",a+2,"Valeur centrale après classement.")},
 ()=>{let a=R(2,8),b=R(2,8);return T("Étendue de "+a+", "+(a+b)+" et "+(a+b+4)+" =",b+4,"Maximum moins minimum.")},
 ()=>{let a=R(2,8);return T("Effectif total : "+a+" filles et "+(a+3)+" garçons =",2*a+3,"Additionne les effectifs.")],
