@@ -23,3 +23,5 @@ for(const subject of ['english','math']){
  }
 }
 console.log('STRICT 41-TOPIC RETRY QA PASS');
+
+// Confirmed QA failure: english/be has insufficient fresh variants.
