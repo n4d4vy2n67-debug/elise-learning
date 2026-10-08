@@ -40,6 +40,8 @@ jobs:
         run: node tests/math-all-chapters-ci.js
       - name: QA five-cycle progression
         run: node tests/cycles-ci.js
+      - name: QA Firebase and notifications contract
+        run: node tests/integrations-contract-ci.js
       - name: Install Playwright
         run: |
           npm init -y
