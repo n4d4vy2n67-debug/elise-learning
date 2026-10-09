@@ -16,7 +16,8 @@ async function initialise(){
   const catalogue=[...mathChapters.map(c=>({...c,subject:'math',theory:c.theoryHtml??c.theory,generate:(seed,{previousFingerprints})=>generateMath(c.id,{seed,avoidFingerprints:previousFingerprints})})),...englishChapters.map(c=>({...c,subject:'english',theory:c.theoryHtml??c.theory,generate:(seed,{previousFingerprints})=>generateEnglish(c.id,{seed,avoidFingerprints:previousFingerprints})}))];
   const authenticate=async header=>{if(!header.startsWith('Bearer '))throw new Error('Authentication token required');const token=await getAuth(app).verifyIdToken(header.slice(7),true),profile=await db.collection('profiles').doc(token.uid).get(),p=profile.data()??{};return {uid:token.uid,anonymous:token.firebase?.sign_in_provider==='anonymous',parent:p.role==='parent',admin:p.role==='admin',studentUids:p.studentUids??[]};};
   const store=new FirestoreStore(db);
-  let qaStore=null;
+  // QA uses a separate qaStudents namespace; an optional project can override it.
+  let qaStore=store;
   if(environment==='production'&&process.env.FIREBASE_QA_SERVICE_ACCOUNT){
     const qaCredential=JSON.parse(process.env.FIREBASE_QA_SERVICE_ACCOUNT);
     if(!process.env.V4_QA_PROJECT_ID||qaCredential.project_id!==process.env.V4_QA_PROJECT_ID||qaCredential.project_id===service.project_id)throw new Error('Separate QA Firebase project required');

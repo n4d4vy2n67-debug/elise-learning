@@ -51,7 +51,8 @@ export function applyAction(state,input,{catalogue,at=Date.now(),qa=false}={}) {
     const c=catalogue.find(c=>c.id===input.chapterId&&c.subject===input.subject)??fail('Unknown chapter');
     const active=Object.values(state.sessions).find(s=>s.subject===c.subject&&s.mode===(qa?'qa':'normal')&&['theory','practice','test'].includes(s.status));
     if(active)return dto(active);
-    if(!qa){const b=bucket(c.subject);if(b.attempts>=6||b.passed.length>=3)fail('Daily limit reached');if(list(c.subject).findIndex(x=>x.id===c.id)>state.progress[c.subject])fail('Chapter locked');penalty(state,at);}
+    if(list(c.subject).findIndex(x=>x.id===c.id)>state.progress[c.subject])fail('Chapter locked');
+    if(!qa){const b=bucket(c.subject);if(b.attempts>=6||b.passed.length>=3)fail('Daily limit reached');penalty(state,at);}
     const previous=Object.values(state.sessions).filter(s=>s.chapterId===c.id&&s.mode===(qa?'qa':'normal')).slice(-6).flatMap(s=>[...s.practice,...s.test].map(q=>q.fingerprint??normalise(q.prompt)));
     const id=randomUUID(), questions=selectQuestions(c,id,previous);
     const s={id,chapterId:c.id,subject:c.subject,mode:qa?'qa':'normal',status:'theory',createdAt:at,title:c.title,objective:c.objective??'',examples:c.examples??[],theory:c.theory,rules:{...RULES},contentVersion:c.version??'4.0.0',...questions,answers:{}};
@@ -83,15 +84,17 @@ export function applyAction(state,input,{catalogue,at=Date.now(),qa=false}={}) {
     return {questionId:q.id,recorded:true,...(s.status==='practice'?{correct:s.answers[q.id].correct,explanation:q.explanation}:{}),session:dto(s)};
   }
   if(action==='abandon'){if(['theory','practice','test'].includes(s.status)){s.status='abandoned';s.abandonedAt=at;}return dto(s);}
-  if(action==='feedback'){if(s.status!=='completed')fail('Feedback requires completed session');if(!['easy','just','hard'].includes(input.difficulty)||typeof(input.comment??'')!=='string'||String(input.comment??'').length>1000)fail('Invalid feedback');s.feedback={difficulty:input.difficulty,comment:input.comment??'',enjoy:['yes','neutral','no'].includes(input.enjoy)?input.enjoy:null,at};const h=state.history.find(h=>h.id===s.id);if(isNormal(s)&&h)h.feedback=s.feedback;return {recorded:true};}
+  if(action==='feedback'){if(s.status!=='completed')fail('Feedback requires completed session');if(!['easy','just','hard'].includes(input.difficulty)||typeof(input.comment??'')!=='string'||String(input.comment??'').length>1000)fail('Invalid feedback');s.feedback={difficulty:input.difficulty,comment:input.comment??'',enjoy:['yes','neutral','no'].includes(input.enjoy)?input.enjoy:null,at};const h=state.history.find(h=>h.id===s.id);if(h)h.feedback=s.feedback;return {recorded:true};}
   if(action==='help'){if(!['practice','completed'].includes(s.status))fail('Help unavailable during this phase');const q=[...s.practice,...(s.status==='completed'?s.test:[])].find(q=>q.id===input.questionId)??fail('Question unavailable');const minute=Math.floor(at/60000);if(state.helpUsage?.minute!==minute)state.helpUsage={minute,count:0};if(state.helpUsage.count>=6)fail('Help rate limit');state.helpUsage.count++;return {allowed:true,context:{chapterId:s.chapterId,theory:s.theory,question:{prompt:q.prompt,family:q.family},stage:s.status}};}
   if(action==='finish'){
     if(s.status==='completed')return dto(s);if(s.status!=='test'||Object.keys(s.answers).length!==15||![...s.practice,...s.test].every(q=>s.answers[q.id]))fail('Complete exactly 15 answers first');
     const testCorrect=s.test.filter(q=>s.answers[q.id].correct).length,practiceCorrect=s.practice.filter(q=>s.answers[q.id].correct).length,score=testCorrect*20,passed=score>=s.rules.pass;
     const earned=isNormal(s)?(testCorrect+practiceCorrect)*s.rules.correctXP+(passed?s.rules.bonusXP:0):0, index=list(s.subject).findIndex(c=>c.id===s.chapterId),nextChapterId=passed?(list(s.subject)[index+1]?.id??null):s.chapterId;
-    if(isNormal(s)){penalty(state,at);const b=bucket(s.subject);b.attempts++;if(passed&&!b.passed.includes(s.chapterId))b.passed.push(s.chapterId);state.xp+=earned;state.totalEarned+=earned;state.ledger.push({id:`finish:${s.id}`,delta:earned,at});if(passed){if(!state.mastery[s.subject].includes(s.chapterId))state.mastery[s.subject].push(s.chapterId);state.progress[s.subject]=Math.max(state.progress[s.subject],index+1);}state.lastActivityDay=today;state.lastActivityXP=state.xp;state.inactivity=null;}
+    if(isNormal(s)){penalty(state,at);const b=bucket(s.subject);b.attempts++;if(passed&&!b.passed.includes(s.chapterId))b.passed.push(s.chapterId);state.xp+=earned;state.totalEarned+=earned;state.ledger.push({id:`finish:${s.id}`,delta:earned,at});state.lastActivityDay=today;state.lastActivityXP=state.xp;state.inactivity=null;}
+    if(passed){if(!state.mastery[s.subject].includes(s.chapterId))state.mastery[s.subject].push(s.chapterId);state.progress[s.subject]=Math.max(state.progress[s.subject],index+1);}
     s.status='completed';s.completedAt=at;s.result={score,passed,earned,nextChapterId,programmeComplete:passed&&!nextChapterId,practiceCorrect,testCorrect};
-    if(isNormal(s)){state.history.push({id:s.id,chapterId:s.chapterId,subject:s.subject,day:today,...s.result,durations:{theory:s.practiceAt-s.createdAt,practice:s.testAt-s.practiceAt,test:at-s.testAt,total:at-s.createdAt}});state.notifications.push({id:`${s.id}:finish`,sessionId:s.id,type:'finish',status:'pending',at,result:s.result,history:state.history.at(-1)});}return dto(s);
+    state.history.push({id:s.id,chapterId:s.chapterId,subject:s.subject,day:today,completedAt:at,...s.result,durations:{theory:s.practiceAt-s.createdAt,practice:s.testAt-s.practiceAt,test:at-s.testAt,total:at-s.createdAt}});
+    if(isNormal(s)){state.notifications.push({id:`${s.id}:finish`,sessionId:s.id,type:'finish',status:'pending',at,result:s.result,history:state.history.at(-1)});}return dto(s);
   }
   fail('Unknown action');
 }
