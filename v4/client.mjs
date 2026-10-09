@@ -14,6 +14,8 @@ export async function api(action,payload={}){
 export async function init(){configuration=await api('config');configureAuth(configuration.firebase||configuration.firebaseConfig||configuration.firebaseWebConfig);return configuration;}
 export function requestId(){return crypto.randomUUID()}
 const pendingKey=()=>`elise-v4-pending:${user()?.uid||(configuration.localTest?'local-fixture':'unconnected')}:${selectedStudentUid||'self'}`;
-export function savePending(item){localStorage.setItem(pendingKey(),JSON.stringify({...item,...(selectedStudentUid?{studentUid:selectedStudentUid}:{})}))}
-export function pending(){try{return JSON.parse(localStorage.getItem(pendingKey())||'null')}catch{return null}}
-export function clearPending(){localStorage.removeItem(pendingKey())}
+const readPending=key=>{try{return JSON.parse(localStorage.getItem(key)||'null')}catch{return null}};
+const modeOf=item=>item?.mode||'normal';
+export function savePending(item){const key=pendingKey()+(modeOf(item)==='qa'?':qa':'');localStorage.setItem(key,JSON.stringify({...item,...(selectedStudentUid?{studentUid:selectedStudentUid}:{})}))}
+export function pending(mode='normal'){const key=pendingKey(),item=readPending(key+(mode==='qa'?':qa':''));if(item&&modeOf(item)===mode)return item;const legacy=readPending(key);return legacy&&modeOf(legacy)===mode?legacy:null}
+export function clearPending(mode='normal'){const key=pendingKey();if(mode==='qa')localStorage.removeItem(key+':qa');if(modeOf(readPending(key))===mode)localStorage.removeItem(key)}

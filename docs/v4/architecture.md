@@ -34,7 +34,7 @@ Netlify Functions : authentification, création/reprise de séance, démarrage d
 
 Authentification Firebase : compte élève durable avec mécanisme de connexion/reprise utilisable sur plusieurs appareils ; un compte anonyme seul ne suffit pas. Lier les données existantes à un compte vérifié selon leur provenance, sans fusionner automatiquement des identités différentes. Le parent est autorisé par relation explicite avec l’élève, pas par une adresse ou un rôle modifiable côté client. Les règles Firestore et les fonctions contrôlent propriétaire et rôle ; secrets conservés exclusivement côté serveur.
 
-Le projet Firebase QA est séparé de production. Les parcours QA ordinaires utilisent ce projet et un destinataire de notification fictif. Le mode QA affiché est explicite et ne peut être activé pour contourner des compteurs du compte réel. Les déploiements de prévisualisation n’ont pas d’identifiants Firebase ou e-mail de production.
+Les Deploy Previews utilisent un projet Firebase QA séparé. Le test qualité accessible en production utilise la collection serveur distincte `qaStudents/{uid}`, avec progression, historique et séances propres, sans notifications. Une configuration `FIREBASE_QA_SERVICE_ACCOUNT` permet de placer cette collection dans un projet séparé. Le mode QA affiché est explicite et ne peut être activé pour contourner des compteurs du compte réel. Les déploiements de prévisualisation n’ont pas d’identifiants Firebase ou e-mail de production.
 
 ## Transactions et interruptions
 
@@ -124,3 +124,9 @@ Les accès parent doivent être bornés au profil lié. La lecture directe des c
 7. Sauvegarde fraîche avant bascule, migration réelle contrôlée puis publication selon processus existant ; contrôle postproduction du numéro V4, points, historique, quotas, reprise, e-mails et Firebase.
 
 Toutes les routes, collections et étapes de cette section sont des choix de conception proposés, et non des composants livrés. La durée et le nombre de changements nécessaires ne sont pas établis avant l’inventaire du code existant.
+
+## Test qualité miroir — correction octobre 2026
+
+Le test qualité utilise les mêmes cartes de mission, contenus, génération, correction et prérequis. Son parcours commence à la première notion et persiste séparément. Un score inférieur à 80 % conserve la notion ; à partir de 80 % la suivante est débloquée. Les révisions restent possibles pour les notions accessibles. Aucun quota quotidien, crédit XP, pénalité, récompense ou notification réelle n’est appliqué. Les réponses hors ligne sont séparées par mode. Les règles Firestore interdisent tout accès client direct ; les Functions autorisent le compte propriétaire et les parents liés avant d’accéder à `qaStudents`.
+
+Validation : `npm test` et `node tests/v4-quality-browser.mjs`. Ces essais utilisent un stockage local explicite ; ils ne constituent pas une connexion au compte réel d’Élise.
