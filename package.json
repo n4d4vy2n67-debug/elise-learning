@@ -1,0 +1,15 @@
+{
+  "name": "elise-learning",
+  "version": "4.0.0",
+  "private": true,
+  "scripts": {
+    "check": "node --test tests/v4*.test.mjs",
+    "test": "node --test tests/v4*.test.mjs"
+  },
+  "dependencies": {
+    "firebase-admin": "14.5.0"
+  },
+  "devDependencies": {
+    "playwright": "1.64.0"
+  }
+}
