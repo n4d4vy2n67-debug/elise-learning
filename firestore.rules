@@ -1,0 +1,11 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // V4 accesses all sensitive fields through authorised Netlify Functions.
+    // Admin SDK bypasses these rules; API performs owner/verified parent checks.
+    match /profiles/{uid} { allow read, write: if false; }
+    match /students/{uid}/{document=**} { allow read, write: if false; }
+    match /qaStudents/{uid}/{document=**} { allow read, write: if false; }
+    match /{document=**} { allow read, write: if false; }
+  }
+}
