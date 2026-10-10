@@ -5,9 +5,12 @@ import assert from 'node:assert/strict';
 import {createRequire} from 'node:module';
 import {startLocalServer} from './v4-local-server.mjs';
 const require=createRequire(import.meta.url);
-async function browser(){let pw;try{pw=require('playwright')}catch{if(!process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES)throw new Error('Playwright unavailable; browser QA not performed');pw=require(process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES+'/playwright')}return pw.chromium.launch({headless:true,...(process.env.V4_CHROMIUM_EXECUTABLE?{executablePath:process.env.V4_CHROMIUM_EXECUTABLE,args:['--no-sandbox','--disable-dev-shm-usage']}: {})});}
+async function browser(){let pw;try{pw=require('playwright')}catch{if(!process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES)throw new Error('Playwright unavailable; browser QA not performed');pw=require(process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES+'/playwright')}return pw.chromium.launch({headless:true,...(process.env.V4_CHROMIUM_EXECUTABLE?{executablePath:process.env.V4_CHROMIUM_EXECUTABLE,args:['--no-sandbox','--disable-dev-shm-usage','--single-process','--disable-gpu','--no-zygote','--use-gl=angle','--use-angle=swiftshader']}: {})});}
 async function finishUI(page,local,{qa=false,subject='english'}={}){
- if(qa){await page.goto(local.url+'/#qa');await page.locator('#qa-chapter').selectOption({index:local.catalogue.findIndex(c=>c.subject===subject)});await page.locator('[data-action="qa-start"]').click();}else await page.locator(`[data-action="start"][data-subject="${subject}"]:not([data-chapter])`).click();
+ // Quality now mirrors the mission cards and chapter rules; it has no bespoke selector.
+ if(qa){await page.goto(local.url+'/#qa');await page.getByRole('heading',{name:'Test qualité',exact:true}).waitFor();}
+ else if(new URL(page.url()).hash==='#qa'){await page.locator('[data-action="home"]').click();await page.getByRole('heading',{name:'Bonjour Élise',exact:true}).waitFor();}
+ await page.locator(`[data-action="start"][data-subject="${subject}"]:not([data-chapter])`).click();
  await page.locator('[data-action="practice"]').click();
  const state=await local.store.read((qa?'qaStudents':'students')+'/qa-local-child');const session=Object.values(state.sessions).find(s=>['practice','theory','test'].includes(s.status));assert.ok(session);
  for(let phase of ['practice','test']){

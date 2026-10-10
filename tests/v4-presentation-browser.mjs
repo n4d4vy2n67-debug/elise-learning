@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {chromium} from 'playwright';
 import {startLocalServer} from './v4-local-server.mjs';
 const local=await startLocalServer();
-const browser=await chromium.launch({headless:true,executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE,args:['--no-sandbox','--single-process','--disable-gpu','--no-zygote','--use-gl=angle','--use-angle=swiftshader']});
+const browser=await chromium.launch({headless:true,...(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE?{executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE,args:['--no-sandbox','--single-process','--disable-gpu','--no-zygote','--use-gl=angle','--use-angle=swiftshader']}: {})});
 try{
  const page=await browser.newPage({viewport:{width:390,height:844}});page.setDefaultTimeout(10000);
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
