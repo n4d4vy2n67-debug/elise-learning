@@ -28,6 +28,10 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Browser regression quality to normal and full learning journeys
         run: node --test tests/v4-e2e.spec.mjs
+      - name: Quality mission mirror and production isolation
+        run: node tests/v4-quality-browser.mjs
+      - name: Rose presentation, motion, accessibility and offline safeguards
+        run: node tests/v4-presentation-browser.mjs
       - name: Preserve QA results
         if: always()
         uses: actions/upload-artifact@v4
