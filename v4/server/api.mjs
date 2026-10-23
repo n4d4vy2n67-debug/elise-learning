@@ -34,7 +34,15 @@ export function createAPI({store,authenticate,catalogue,clock=()=>Date.now(),qaS
         return response(200,{ok:true,data:help});
       }
       // A delivery failure never rolls back credited results. Dispatcher retains pending events.
-      if(notify&&!qa&&['practice','finish','redeem'].includes(input.action))await notify(key).catch(()=>{});
+      if(notify&&!qa&&['practice','finish','redeem'].includes(input.action)){
+        // Never hold a completed mini-test hostage to an email provider or an
+        // additional Firestore notification transaction. The durable outbox
+        // is already committed; the scheduled worker can retry delivery.
+        await Promise.race([
+          Promise.resolve().then(()=>notify(key)).catch(()=>{}),
+          new Promise(resolve=>{const timer=setTimeout(resolve,1200);timer.unref?.();})
+        ]);
+      }
       return response(200,{ok:true,data});
     }catch(error){const message=error.message??'Request failed';const unauthorized=/token|auth|credential/i.test(message);return response(unauthorized?401:400,{ok:false,error:message});}
   };
