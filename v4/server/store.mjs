@@ -1,4 +1,4 @@
-import {initialState} from '../core/engine.mjs';
+import {initialState,applyAction} from '../core/engine.mjs';
 import {archiveMigration,restoreMigration} from './migration-archive.mjs';
 export class MemoryStore {
   constructor(){this.states=new Map();this.locks=new Map();}
@@ -8,6 +8,29 @@ export class MemoryStore {
 // Each large item is a separate document. All reads precede writes in a transaction.
 export class FirestoreStore {
   constructor(db){this.db=db;}
+  // The frequent practice/answer/startTest actions only need the student root
+  // and one session. Keep the full transaction for finish, rewards and history.
+  async transactSession(key,input,{catalogue,at,qa=false}={}){
+    if(!['practice','answer','startTest'].includes(input.action))throw new Error('Unsupported scoped action');
+    const [namespace,uid]=key.split('/');
+    if(!['students','qaStudents'].includes(namespace)||!uid||uid.includes('/')||typeof input.sessionId!=='string'||!input.sessionId||input.sessionId.includes('/'))throw new Error('Invalid scoped storage key');
+    const root=this.db.collection(namespace).doc(uid);
+    const sessionRef=root.collection('sessions').doc(encodeURIComponent(input.sessionId));
+    return this.db.runTransaction(async tx=>{
+      const rootSnap=await tx.get(root),sessionSnap=await tx.get(sessionRef);
+      const state=initialState();
+      Object.assign(state,rootSnap.exists?rootSnap.data():{});
+      if(sessionSnap.exists)state.sessions={[input.sessionId]:sessionSnap.data()};
+      else state.sessions={};
+      // Notifications from the practice transition are persisted atomically.
+      state.notifications=[];
+      const result=applyAction(state,input,{catalogue,at,qa});
+      const next=state.sessions[input.sessionId];
+      if(JSON.stringify(next)!==JSON.stringify(sessionSnap.exists?sessionSnap.data():null))tx.set(sessionRef,next);
+      for(const event of state.notifications)tx.set(root.collection('notifications').doc(encodeURIComponent(event.id)),event);
+      return result;
+    });
+  }
   async transact(key,fn){
     const [namespace,uid]=key.split('/');if(!['students','qaStudents'].includes(namespace)||!uid||uid.includes('/'))throw new Error('Invalid storage key');
     const root=this.db.collection(namespace).doc(uid);
