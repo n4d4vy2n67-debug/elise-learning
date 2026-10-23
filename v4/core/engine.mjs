@@ -64,14 +64,14 @@ export function applyAction(state,input,{catalogue,at=Date.now(),qa=false}={}) {
     const reward=REWARDS.find(r=>r.id===input.rewardId)??fail('Unknown reward');if(state.xp<reward.cost)fail('Insufficient points');
     if(reward.id==='snap'&&Object.values(state.rewardRequests).some(r=>r.rewardId==='snap'&&['pending','approved'].includes(r.status)))fail('Reward already requested');
     const request={id,rewardId:reward.id,name:reward.name,cost:reward.cost,minAge:reward.minAge??null,status:'pending',requestedAt:at};
-    state.xp-=reward.cost;state.rewardRequests[id]=request;state.ledger.push({id,requestId:id,rewardId:reward.id,delta:-reward.cost,at});return {xp:state.xp,request};
+    state.rewardRequests[id]=request;state.notifications.push({id:`${id}:notification`,type:'reward-request',rewardName:reward.name,rewardCost:reward.cost,status:'pending',at});return {xp:state.xp,request};
   }
   if(['approveReward','rejectReward'].includes(action)){
     if(qa)fail('Rewards unavailable in QA');const request=state.rewardRequests?.[input.rewardRequestId]??fail('Unknown reward request');
     const wanted=action==='approveReward'?'approved':'rejected';if(request.status===wanted)return {xp:state.xp,request,alreadyApplied:true};if(request.status!=='pending')fail('Reward already reviewed');
     if(wanted==='approved'&&request.minAge&&input.ageConfirmed!==true)fail('Parent age confirmation required');
-    request.status=wanted;request.reviewedAt=at;if(wanted==='approved'&&request.minAge)request.parentAgeConfirmedAt=at;
-    if(wanted==='rejected'){state.xp+=request.cost;state.ledger.push({id:`refund:${request.id}`,requestId:request.id,delta:request.cost,at});}
+    if(wanted==='approved'&&!state.ledger.some(l=>l.requestId===request.id&&l.delta===-request.cost)){if(state.xp<request.cost)fail('Insufficient points at approval');state.xp-=request.cost;state.ledger.push({id:request.id,requestId:request.id,rewardId:request.rewardId,delta:-request.cost,at});}request.status=wanted;request.reviewedAt=at;if(wanted==='approved'&&request.minAge)request.parentAgeConfirmedAt=at;
+    if(wanted==='rejected'&&state.ledger.some(l=>l.requestId===request.id&&l.delta===-request.cost)&&!state.ledger.some(l=>l.id===`refund:${request.id}`)){state.xp+=request.cost;state.ledger.push({id:`refund:${request.id}`,requestId:request.id,delta:request.cost,at});}
     return {xp:state.xp,request};
   }
   const s=get();if(s.mode!==(qa?'qa':'normal'))fail('Session mode mismatch');if(at<s.createdAt||at<(s.testAt??s.createdAt))fail('Chronology violation');
