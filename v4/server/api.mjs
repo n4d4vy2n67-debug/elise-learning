@@ -26,7 +26,7 @@ export function createAPI({store,authenticate,catalogue,clock=()=>Date.now(),qaS
         if(environment==='production')throw new Error('Production migration requires controlled operator job');
         const data=await selectedStore.transact(key,s=>applyMigration(s,plan,{backupVerified:input.backupVerified,identityVerified:input.identityVerified}));return response(200,{ok:true,data});
       }
-      const data=await selectedStore.transact(key,state=>applyAction(state,input,{catalogue,at:clock(),qa}));
+      const at=clock();const data=selectedStore.transactSession&&['practice','answer','startTest'].includes(input.action)?await selectedStore.transactSession(key,input,{catalogue,at,qa}):await selectedStore.transact(key,state=>applyAction(state,input,{catalogue,at,qa}));
       if(input.action==='dashboard'){data.actorRole=auth.admin?'admin':auth.parent?'parent':'student';data.linkedStudents=auth.studentUids??[];data.selectedStudentUid=target;}
       if(input.action==='help'){
         const fallback={label:'Aide préparée, sans IA',text:'Relis la règle de cette notion puis repère les éléments de la question. Essaie une étape à la fois.',ai:false};
