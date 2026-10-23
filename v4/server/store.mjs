@@ -20,7 +20,7 @@ export class FirestoreStore {
       const before=structuredClone(state),result=await fn(state),core={...state};for(const name of collections)delete core[name];
       const writes=[];
       if(state.migration){const archive=archiveMigration(state.migration);core.migration=archive.pointer;if(!scalar.data()?.migration?.archived||JSON.stringify(before.migration)!==JSON.stringify(state.migration)){for(const chunk of archive.chunks)writes.push([root.collection('migrationArchive').doc(String(chunk.index).padStart(4,'0')),chunk]);}}
-      writes.push([root,core]);
+      if(!scalar.exists||JSON.stringify(Object.fromEntries(Object.entries(before).filter(([name])=>!collections.includes(name))))!==JSON.stringify(core))writes.push([root,core]);
       for(const name of collections){const entries=Array.isArray(state[name])?state[name].map(x=>[x.id,x]):Object.entries(state[name]);for(const [id,value]of entries){const old=Array.isArray(before[name])?before[name].find(x=>x.id===id):before[name][id];if(JSON.stringify(old)!==JSON.stringify(value))writes.push([root.collection(name).doc(encodeURIComponent(id)),name==='requests'?{value}:value]);}}
       if(writes.length>450)throw new Error('Transaction capacity exceeded; staged operator import required');
       if(writes.some(([,value])=>Buffer.byteLength(JSON.stringify(value),'utf8')>900000))throw new Error('Document capacity exceeded; split oversized source records before import');
