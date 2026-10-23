@@ -34,7 +34,7 @@ export function createAPI({store,authenticate,catalogue,clock=()=>Date.now(),qaS
         return response(200,{ok:true,data:help});
       }
       // A delivery failure never rolls back credited results. Dispatcher retains pending events.
-      if(notify&&!qa&&['practice','finish'].includes(input.action))await notify(key).catch(()=>{});
+      if(notify&&!qa&&['practice','finish','redeem'].includes(input.action))await notify(key).catch(()=>{});
       return response(200,{ok:true,data});
     }catch(error){const message=error.message??'Request failed';const unauthorized=/token|auth|credential/i.test(message);return response(unauthorized?401:400,{ok:false,error:message});}
   };
